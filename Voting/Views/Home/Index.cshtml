@@ -1,0 +1,134 @@
+﻿@using Voting.ViewModels;
+@model CandidatesVoteDetails;
+
+@{
+    ViewData["Title"] = "Voting App";
+    var votedList = Model.CandidatesVoters.Where(x => x.Voted == true).Select(x => new SelectListItem { Value = Convert.ToString(x.VoterId), Text = "" }).ToList();
+}
+<style type="text/css">
+    .remove-style {
+        all: initial;
+        // or all: unset
+    }
+
+    .table-wrap {
+        height: 400px;
+        overflow-y: auto;
+    }
+
+    table {
+        height: 400px;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    th {
+        /* background: white; */
+        position: sticky;
+        top: 0;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-6 table-wrap table-responsive-lg">
+            <table class="table table-bordered text-center table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th colspan="2" class="text-center">
+                            Voters
+                            <a asp-action="AddVoter" asp-controller="Home">
+                            <svg class="float-end" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                            </svg>
+                            </a>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <th>Has Voted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.VoterList)
+                    {
+                        <tr>
+                            <td>@c.Text</td>
+                            <td>
+                                @if (Model.CandidatesVoters.Where(x => x.VoterId == Convert.ToInt32(c.Value)).Select(x => x.Voted).FirstOrDefault() == true)
+                                {
+                                    <div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2" viewBox="0 0 16 16">
+                                            <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0" />
+                                        </svg>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                                        </svg>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-6 table-wrap table-responsive-lg">
+            <table class="table table-bordered text-center table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th colspan="2" class="text-center">
+                            Candidates
+                            <a asp-action="AddCandidate" asp-controller="Home">
+                                <svg class="float-end" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                                </svg>
+                            </a>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <th>Votes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.CandidateList)
+                    {
+                        <tr>
+                            <td>@c.Text</td>
+                            <td>@Model.CandidatesVoters.Where(x => x.CandidateId == Convert.ToInt32(c.Value)).Count()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<hr />
+<h4>Vote!</h4>
+@using (@Html.BeginForm("SaveVote", "Home"))
+{
+    <table class="remove-style">
+        <tr>
+            <td>
+                @Html.DropDownListFor(model => model.VoterId, new SelectList(Model.VoterList.Where(p => !votedList.Any(p2 => p2.Value.Equals(p.Value))).Select(x => new { x.Value, x.Text }).ToList(), "Value", "Text"), "I am ", htmlAttributes: new { @class = "form-control" })
+            </td>
+            <td>
+                @Html.DropDownListFor(model => model.CandidateId, new SelectList(Model.CandidateList, "Value", "Text"), " I vote for ", htmlAttributes: new { @class = "form-control" })
+            </td>
+            <td>
+
+                <div>
+                    <button type="submit" class="btn btn-secondary">Submit</button>
+                </div>
+            </td>
+        </tr>
+    </table>
+}
+
+
