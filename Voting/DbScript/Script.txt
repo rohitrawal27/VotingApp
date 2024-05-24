@@ -1,0 +1,17 @@
+﻿CREATE TABLE Voters (
+	voter_id INT IDENTITY (1, 1),
+	voter_name VARCHAR (255) NOT NULL,
+	CONSTRAINT PK_Voters PRIMARY KEY (voter_id)
+);
+CREATE TABLE Candidates (
+	candidate_id INT IDENTITY (1, 1),
+	candidate_name VARCHAR (255) NOT NULL,
+	CONSTRAINT PK_Candidates PRIMARY KEY (candidate_id)
+);
+CREATE TABLE CandidatesVoters(
+	candidatesvoters_id INT IDENTITY (1, 1),
+	voter_id int FOREIGN KEY (voter_id) REFERENCES Voters (voter_id),
+	candidate_id int FOREIGN KEY (candidate_id) REFERENCES Candidates (candidate_id),
+	voted bit,
+	CONSTRAINT PK_CandidatesVoters PRIMARY KEY (candidatesvoters_id)
+);
