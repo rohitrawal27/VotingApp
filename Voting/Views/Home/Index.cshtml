@@ -3,31 +3,8 @@
 
 @{
     ViewData["Title"] = "Voting App";
-    var votedList = Model.CandidatesVoters.Where(x => x.Voted == true).Select(x => new SelectListItem { Value = Convert.ToString(x.VoterId), Text = "" }).ToList();
 }
-<style type="text/css">
-    .remove-style {
-        all: initial;
-        // or all: unset
-    }
-
-    .table-wrap {
-        height: 400px;
-        overflow-y: auto;
-    }
-
-    table {
-        height: 400px;
-        overflow-y: auto;
-        position: relative;
-    }
-
-    th {
-        /* background: white; */
-        position: sticky;
-        top: 0;
-    }
-</style>
+<link href="~/css/index.css" rel="stylesheet" />
 <div class="container-fluid">
     <div class="row">
         <div class="col-6 table-wrap table-responsive-lg">
@@ -50,7 +27,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var c in Model.VoterList)
+                    @foreach (var c in Model.TotalVoterList)
                     {
                         <tr>
                             <td>@c.Text</td>
@@ -116,7 +93,7 @@
     <table class="remove-style">
         <tr>
             <td>
-                @Html.DropDownListFor(model => model.VoterId, new SelectList(Model.VoterList.Where(p => !votedList.Any(p2 => p2.Value.Equals(p.Value))).Select(x => new { x.Value, x.Text }).ToList(), "Value", "Text"), "I am ", htmlAttributes: new { @class = "form-control" })
+                @Html.DropDownListFor(model => model.VoterId, new SelectList(Model.NotVotedVoterList, "Value", "Text"), "I am ", htmlAttributes: new { @class = "form-control" })
             </td>
             <td>
                 @Html.DropDownListFor(model => model.CandidateId, new SelectList(Model.CandidateList, "Value", "Text"), " I vote for ", htmlAttributes: new { @class = "form-control" })
@@ -127,7 +104,19 @@
                     <button type="submit" class="btn btn-secondary">Submit</button>
                 </div>
             </td>
-        </tr>
+         </tr>
+         <tr>
+            <td colspan="3">
+                <div>
+                    @if ((string)TempData["voted"] == "VoteSubmitted")
+                    {
+                        <div class="alert alert-success">
+                            <strong>voted successfully!</strong>
+                        </div>
+                    }
+                </div>
+            </td>
+         </tr>
     </table>
 }
 

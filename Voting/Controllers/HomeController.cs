@@ -10,21 +10,24 @@ namespace Voting.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly VotingContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, VotingContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         public IActionResult Index()
         {
-            var context = new VotingContext();
-            var cvd = new CandidatesVoteDetails();
-            cvd = new CandidatesVoteDetails()
+            var cvd = new CandidatesVoteDetails()
             {
-                CandidateList = context.Candidates.Select(x => new SelectListItem { Value = Convert.ToString(x.CandidateId), Text = x.CandidateName }).ToList(),
-                VoterList = context.Voters.Select(x => new SelectListItem { Value = Convert.ToString(x.VoterId), Text = x.VoterName }).ToList(),
-                CandidatesVoters= context.CandidatesVoters.Select(x => new CandidatesVoter() { VoterId = x.VoterId, CandidateId = x.CandidateId, Voted = x.Voted }).ToList()
+                CandidateList = _context.Candidates.Select(x => new SelectListItem { Value = Convert.ToString(x.CandidateId), Text = x.CandidateName }).ToList(),
+                TotalVoterList = _context.Voters.Select(x => new SelectListItem { Value = Convert.ToString(x.VoterId), Text = x.VoterName }).ToList(),
+                CandidatesVoters = _context.CandidatesVoters.Select(x => new CandidatesVoter() { VoterId = x.VoterId, CandidateId = x.CandidateId, Voted = x.Voted }).ToList(),
+                NotVotedVoterList = _context.Voters.Select(x => new SelectListItem { Value = Convert.ToString(x.VoterId), Text = x.VoterName }).ToList()
+                                     .Where(p => !(_context.CandidatesVoters).Any(p2 => p2.VoterId.Equals(Convert.ToInt32(p.Value))))
+                                     .Select(x => new SelectListItem { Value = Convert.ToString(x.Value), Text = x.Text }).ToList()
             };
 
             return View(cvd);
@@ -37,16 +40,16 @@ namespace Voting.Controllers
         [HttpPost]
         public ActionResult SaveVoter(Voter voter)
         {
-            var context = new VotingContext();
             if (!ModelState.IsValid)
             {
                 return RedirectToAction("AddVoter", "Home");
             }
 
             if (!string.IsNullOrEmpty(voter.VoterName))
-                context.Voters.Add(voter);
+                _context.Voters.Add(voter);
 
-            context.SaveChanges();
+            _context.SaveChanges();
+            TempData["voter"] = "SaveVoter";
             return RedirectToAction("AddVoter", "Home");
         }
         public ActionResult AddCandidate()
@@ -57,22 +60,21 @@ namespace Voting.Controllers
         [HttpPost]
         public ActionResult SaveCandidate(Candidate candidate)
         {
-            var context = new VotingContext();
             if (!ModelState.IsValid)
             {
                 return RedirectToAction("AddCandidate", "Home");
             }
 
             if (!string.IsNullOrEmpty(candidate.CandidateName))
-                context.Candidates.Add(candidate);
+                _context.Candidates.Add(candidate);
 
-            context.SaveChanges();
+            _context.SaveChanges();
+            TempData["candidate"] = "SaveCandidate";
             return RedirectToAction("AddCandidate", "Home");
         }
         [HttpPost]
         public ActionResult SaveVote(CandidatesVoter candidatesVoteDetails)
         {
-            var context = new VotingContext();
             var can = new CandidatesVoter()
             {
                 CandidateId = candidatesVoteDetails.CandidateId,
@@ -86,9 +88,10 @@ namespace Voting.Controllers
             }
 
             if (!string.IsNullOrEmpty(Convert.ToString(candidatesVoteDetails.VoterId)) && !string.IsNullOrEmpty(Convert.ToString(candidatesVoteDetails.CandidateId)))
-                context.CandidatesVoters.Add(can);
+                _context.CandidatesVoters.Add(can);
 
-            context.SaveChanges();
+            _context.SaveChanges();
+            TempData["voted"] = "VoteSubmitted";
             return RedirectToAction("Index", "Home");
         }
 

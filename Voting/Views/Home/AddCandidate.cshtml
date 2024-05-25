@@ -18,3 +18,11 @@
         }
     </div>
 </div>
+<div>
+    @if ((string)TempData["candidate"] == "SaveCandidate")
+    {
+        <div class="alert alert-success">
+            <strong>You have registered candidate successfully</strong>
+        </div>
+    }
+</div>

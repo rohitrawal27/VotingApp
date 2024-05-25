@@ -7,8 +7,9 @@ namespace Voting.ViewModels
     {
         public int VoterId { get; set; } = 0;
         public int CandidateId { get; set; } = 0;
-        public List<SelectListItem> CandidateList { get; set; }
-        public List<SelectListItem> VoterList { get; set; }
-        public List<CandidatesVoter> CandidatesVoters { get; set; }
+        public List<SelectListItem> CandidateList { get; set; } =new List<SelectListItem>();
+        public List<SelectListItem> TotalVoterList { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> NotVotedVoterList { get; set; } = new List<SelectListItem>();
+        public List<CandidatesVoter> CandidatesVoters { get; set; } = new List<CandidatesVoter>();
     }
 }
