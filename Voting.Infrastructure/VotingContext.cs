@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Voting.Domain;
 
-namespace Voting.Models;
+namespace Voting.Infrastructure;
 
 public partial class VotingContext : DbContext
 {
@@ -23,7 +22,9 @@ public partial class VotingContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     { 
-     }
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Server=LAPTOP-S3JK40O8\\MSSQLSERVER01; Database=Voting; Integrated Security=True;Trust Server Certificate=True");
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Candidate>(entity =>
@@ -33,14 +34,6 @@ public partial class VotingContext : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("candidate_name");
-        });
-        modelBuilder.Entity<Voter>(entity =>
-        {
-            entity.Property(e => e.VoterId).HasColumnName("voter_id");
-            entity.Property(e => e.VoterName)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("voter_name");
         });
 
         modelBuilder.Entity<CandidatesVoter>(entity =>
@@ -59,6 +52,15 @@ public partial class VotingContext : DbContext
             entity.HasOne(d => d.Voter).WithMany(p => p.CandidatesVoters)
                 .HasForeignKey(d => d.VoterId)
                 .HasConstraintName("FK__Candidate__voter__4D94879B");
+        });
+
+        modelBuilder.Entity<Voter>(entity =>
+        {
+            entity.Property(e => e.VoterId).HasColumnName("voter_id");
+            entity.Property(e => e.VoterName)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("voter_name");
         });
 
         OnModelCreatingPartial(modelBuilder);

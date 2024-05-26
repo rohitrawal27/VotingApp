@@ -1,4 +1,5 @@
-﻿@model Candidate
+﻿@using Voting.Domain
+@model Candidate
 <div class="card">
     <h5 class="card-header">
         Add Candidate Form
@@ -8,14 +9,14 @@
         @using (@Html.BeginForm("SaveCandidate", "Home"))
         {
             <table>
-                <tr>
+                <tr class="form-group">
                     <td>@Html.LabelFor(m => m.CandidateName)</td>
-                    <td> @Html.TextBoxFor(m => m.CandidateName, new { @class = "form-control" })</td>
+                    <td> @Html.TextBoxFor(m => m.CandidateName, new { @class = "form-control" })
+                    </td>
                     <td><button type="submit" class="btn btn-primary">Save</button></td>
                 </tr>
             </table>
-
-        }
+          }
     </div>
 </div>
 <div>
@@ -23,6 +24,12 @@
     {
         <div class="alert alert-success">
             <strong>You have registered candidate successfully</strong>
+        </div>
+    }
+    @if ((string)TempData["candidate"] == "Error")
+    {
+        <div class="alert alert-danger">
+            <strong>Invalid Candidate Name!</strong>
         </div>
     }
 </div>

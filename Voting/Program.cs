@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Voting;
+using Voting.Infrastructure;
 using Voting.Models;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Voting.Models;
+﻿namespace Voting.Domain;
 
 public partial class CandidatesVoter
 {
@@ -14,5 +11,6 @@ public partial class CandidatesVoter
     public bool? Voted { get; set; }
 
     public virtual Candidate? Candidate { get; set; }
+
     public virtual Voter? Voter { get; set; }
 }

@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
+using Voting.Domain;
+using Voting.Infrastructure;
 using Voting.Models;
 using Voting.ViewModels;
 
@@ -40,8 +42,10 @@ namespace Voting.Controllers
         [HttpPost]
         public ActionResult SaveVoter(Voter voter)
         {
-            if (!ModelState.IsValid)
+            var voterCount = _context.Voters.Where(x => x.VoterName == voter.VoterName).Count();
+            if (!ModelState.IsValid || voterCount > 0)
             {
+                TempData["voter"] = "Error";
                 return RedirectToAction("AddVoter", "Home");
             }
 
@@ -60,8 +64,11 @@ namespace Voting.Controllers
         [HttpPost]
         public ActionResult SaveCandidate(Candidate candidate)
         {
-            if (!ModelState.IsValid)
+            var candidateCount = _context.Candidates.Where(x=>x.CandidateName == candidate.CandidateName).Count();
+
+            if (!ModelState.IsValid || candidateCount > 0)
             {
+                TempData["candidate"] = "Error";
                 return RedirectToAction("AddCandidate", "Home");
             }
 

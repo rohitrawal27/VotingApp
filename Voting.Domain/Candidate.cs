@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Voting.Models;
+namespace Voting.Domain;
 
 public partial class Candidate
 {
     public int CandidateId { get; set; }
-
-    public string? CandidateName { get; set; } = null!;
-
+    public string CandidateName { get; set; } = null!;
     public virtual ICollection<CandidatesVoter> CandidatesVoters { get; set; } = new List<CandidatesVoter>();
 }

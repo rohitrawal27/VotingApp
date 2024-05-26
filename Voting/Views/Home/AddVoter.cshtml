@@ -1,4 +1,5 @@
-﻿@model Voter
+﻿@using Voting.Domain
+@model Voter
 <div class="card">
     <h5 class="card-header">Add Voter Form
         <a asp-action="Index" asp-controller="Home" class="btn btn-primary float-end">Home</a>
@@ -22,6 +23,12 @@
     {
         <div class="alert alert-success">
             <strong>You have registered voter successfully</strong>
+        </div>
+    }
+    @if ((string)TempData["voter"] == "Error")
+    {
+        <div class="alert alert-danger">
+            <strong>Invalid Voter Name!</strong>
         </div>
     }
 </div>

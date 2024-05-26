@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Voting.Models;
+using Voting.Domain;
 
 namespace Voting.ViewModels
 {

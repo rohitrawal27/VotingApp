@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Voting.Models;
+﻿namespace Voting.Domain;
 
 public partial class Voter
 {
