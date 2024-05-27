@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 using Voting.Domain;
 using Voting.Infrastructure;
+using Voting.Infrastructure.Repository;
 using Voting.Models;
 using Voting.ViewModels;
 
@@ -12,26 +13,30 @@ namespace Voting.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly VotingContext _context;
+        private readonly ICandidateRepository _candidateRepo;
+        private readonly IVoterRepository _voterRepository;
+        private readonly ICandidateVoterRepository _candidateVoterRepository;
 
-        public HomeController(ILogger<HomeController> logger, VotingContext context)
+        public HomeController(ILogger<HomeController> logger, ICandidateRepository candidateRepo,IVoterRepository voterRepository, ICandidateVoterRepository candidateVoterRepository)
         {
             _logger = logger;
-            _context = context;
+            _candidateRepo = candidateRepo;
+            _voterRepository = voterRepository;
+            _candidateVoterRepository = candidateVoterRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var candidateRepo = await _candidateRepo.Get();
             var cvd = new CandidatesVoteDetails()
             {
-                CandidateList = _context.Candidates.Select(x => new SelectListItem { Value = Convert.ToString(x.CandidateId), Text = x.CandidateName }).ToList(),
-                TotalVoterList = _context.Voters.Select(x => new SelectListItem { Value = Convert.ToString(x.VoterId), Text = x.VoterName }).ToList(),
-                CandidatesVoters = _context.CandidatesVoters.Select(x => new CandidatesVoter() { VoterId = x.VoterId, CandidateId = x.CandidateId, Voted = x.Voted }).ToList(),
-                NotVotedVoterList = _context.Voters.Select(x => new SelectListItem { Value = Convert.ToString(x.VoterId), Text = x.VoterName }).ToList()
-                                     .Where(p => !(_context.CandidatesVoters).Any(p2 => p2.VoterId.Equals(Convert.ToInt32(p.Value))))
-                                     .Select(x => new SelectListItem { Value = Convert.ToString(x.Value), Text = x.Text }).ToList()
+                CandidateList = (await _candidateRepo.Get()).Select(x => new SelectListItem { Value = Convert.ToString(x.CandidateId), Text = x.CandidateName }).ToList(),
+                TotalVoterList = (await _voterRepository.Get()).Select(x => new SelectListItem { Value = Convert.ToString(x.VoterId), Text = x.VoterName }).ToList(),
+                CandidatesVoters = (await _candidateVoterRepository.Get()).Select(x => new CandidatesVoter() { VoterId = x.VoterId, CandidateId = x.CandidateId, Voted = x.Voted }).ToList(),
+                NotVotedVoterList = (await _voterRepository.Get()).Select(x => new SelectListItem { Value = Convert.ToString(x.VoterId), Text = x.VoterName }).ToList()
+                                    .Where(p => !((_candidateVoterRepository.Get()).Result).Any(p2 => p2.VoterId.Equals(Convert.ToInt32(p.Value))))
+                                    .Select(x => new SelectListItem { Value = Convert.ToString(x.Value), Text = x.Text }).ToList()
             };
-
             return View(cvd);
         }
         public ActionResult AddVoter()
@@ -40,9 +45,9 @@ namespace Voting.Controllers
             return View("AddVoter", voter);
         }
         [HttpPost]
-        public ActionResult SaveVoter(Voter voter)
+        public async Task<ActionResult> SaveVoter(Voter voter)
         {
-            var voterCount = _context.Voters.Where(x => x.VoterName == voter.VoterName).Count();
+            var voterCount = (await _voterRepository.Get()).Where(x => x.VoterName == voter.VoterName).Count();
             if (!ModelState.IsValid || voterCount > 0)
             {
                 TempData["voter"] = "Error";
@@ -50,9 +55,8 @@ namespace Voting.Controllers
             }
 
             if (!string.IsNullOrEmpty(voter.VoterName))
-                _context.Voters.Add(voter);
+                await _voterRepository.Create(voter);
 
-            _context.SaveChanges();
             TempData["voter"] = "SaveVoter";
             return RedirectToAction("AddVoter", "Home");
         }
@@ -62,9 +66,9 @@ namespace Voting.Controllers
             return View("AddCandidate", candidate);
         }
         [HttpPost]
-        public ActionResult SaveCandidate(Candidate candidate)
+        public async Task<ActionResult> SaveCandidate(Candidate candidate)
         {
-            var candidateCount = _context.Candidates.Where(x=>x.CandidateName == candidate.CandidateName).Count();
+            var candidateCount = (await _candidateRepo.Get()).Where(x=>x.CandidateName == candidate.CandidateName).Count();
 
             if (!ModelState.IsValid || candidateCount > 0)
             {
@@ -73,16 +77,14 @@ namespace Voting.Controllers
             }
 
             if (!string.IsNullOrEmpty(candidate.CandidateName))
-                _context.Candidates.Add(candidate);
-
-            _context.SaveChanges();
+               await _candidateRepo.Create(candidate);
             TempData["candidate"] = "SaveCandidate";
             return RedirectToAction("AddCandidate", "Home");
         }
         [HttpPost]
-        public ActionResult SaveVote(CandidatesVoter candidatesVoteDetails)
+        public async Task<ActionResult> SaveVote(CandidatesVoter candidatesVoteDetails)
         {
-            var can = new CandidatesVoter()
+            var candidatesVoter = new CandidatesVoter()
             {
                 CandidateId = candidatesVoteDetails.CandidateId,
                 VoterId = candidatesVoteDetails.VoterId,
@@ -95,9 +97,8 @@ namespace Voting.Controllers
             }
 
             if (!string.IsNullOrEmpty(Convert.ToString(candidatesVoteDetails.VoterId)) && !string.IsNullOrEmpty(Convert.ToString(candidatesVoteDetails.CandidateId)))
-                _context.CandidatesVoters.Add(can);
+               await _candidateVoterRepository.Create(candidatesVoter);
 
-            _context.SaveChanges();
             TempData["voted"] = "VoteSubmitted";
             return RedirectToAction("Index", "Home");
         }

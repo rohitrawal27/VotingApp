@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols;
 using Voting.Domain;
 
 namespace Voting.Infrastructure;
@@ -21,9 +22,12 @@ public partial class VotingContext : DbContext
     public virtual DbSet<Voter> Voters { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    { 
+    {
+        base.OnConfiguring(optionsBuilder);
+        optionsBuilder.UseSqlServer("Server=LAPTOP-S3JK40O8\\MSSQLSERVER01; Database=Voting; Integrated Security=True;Trust Server Certificate=True");
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
 //        => optionsBuilder.UseSqlServer("Server=LAPTOP-S3JK40O8\\MSSQLSERVER01; Database=Voting; Integrated Security=True;Trust Server Certificate=True");
+
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
