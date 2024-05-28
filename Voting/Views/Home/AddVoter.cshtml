@@ -1,7 +1,8 @@
 ﻿@using Voting.Domain
 @model Voter
 <div class="card">
-    <h5 class="card-header">Add Voter Form
+    <h5 class="card-header">
+        Add Voter Form
         <a asp-action="Index" asp-controller="Home" class="btn btn-primary float-end">Home</a>
     </h5>
     <div class="card-body">
@@ -9,26 +10,33 @@
         {
             <table>
                 <tr>
-                    <td>@Html.LabelFor(m => m.VoterName)</td>
-                    <td>@Html.TextBoxFor(m => m.VoterName, new { @class = "form-control" })</td>
-                    <td><button type="submit" class="btn btn-primary">Save</button></td>
+                    <td>
+                        <div class="form-group row">
+                            <label asp-for="VoterName" class="col-sm-5 col-form-label"></label>
+                            <div class="col-sm-5">
+                                <input asp-for="VoterName" class="form-control" placeholder="Voter Name" />
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
             </table>
-            
         }
     </div>
 </div>
 <div>
-    @if ((string)TempData["voter"] == "SaveVoter")
-    {
-        <div class="alert alert-success">
-            <strong>You have registered voter successfully</strong>
-        </div>
-    }
-    @if ((string)TempData["voter"] == "Error")
+    @if (Convert.ToBoolean(TempData["SaveVoter"]) == false && TempData["SaveVoter"] != null)
     {
         <div class="alert alert-danger">
             <strong>Invalid Voter Name!</strong>
+        </div>
+    }
+    @if (Convert.ToBoolean(TempData["SaveVoter"]) == true && TempData["SaveVoter"] != null)
+    {
+        <div class="alert alert-success">
+            <strong>You have registered voter successfully</strong>
         </div>
     }
 </div>

@@ -9,27 +9,34 @@
         @using (@Html.BeginForm("SaveCandidate", "Home"))
         {
             <table>
-                <tr class="form-group">
-                    <td>@Html.LabelFor(m => m.CandidateName)</td>
-                    <td> @Html.TextBoxFor(m => m.CandidateName, new { @class = "form-control" })
+                <tr>
+                    <td>
+                        <div class="form-group row">
+                            <label asp-for="CandidateName" class="col-sm-5 col-form-label"></label>
+                            <div class="col-sm-5">
+                                <input asp-for="CandidateName" class="form-control" placeholder="Cadidate Name" />
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </div>
                     </td>
-                    <td><button type="submit" class="btn btn-primary">Save</button></td>
                 </tr>
             </table>
-          }
+        }
     </div>
 </div>
 <div>
-    @if ((string)TempData["candidate"] == "SaveCandidate")
-    {
-        <div class="alert alert-success">
-            <strong>You have registered candidate successfully</strong>
-        </div>
-    }
-    @if ((string)TempData["candidate"] == "Error")
+    @if (Convert.ToBoolean(TempData["SaveCandidate"]) == false && TempData["SaveCandidate"] != null)
     {
         <div class="alert alert-danger">
-            <strong>Invalid Candidate Name!</strong>
+            <strong>Invalid Voter Name!</strong>
+        </div>
+    }
+    @if (Convert.ToBoolean(TempData["SaveCandidate"]) == true && TempData["SaveCandidate"] != null)
+    {
+        <div class="alert alert-success">
+            <strong>You have registered voter successfully</strong>
         </div>
     }
 </div>
